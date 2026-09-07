@@ -39,7 +39,7 @@ jobs:
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
       POSTGRES_DB: testdb
-      TESTPOSTGRES_DB: ${{ secrets.TESTPOSTGRES_DB }}
+      TESTPOSTGRES_DB: testdb
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -47,7 +47,7 @@ jobs:
       EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
       EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
       REDIS_PORT: 6379
-      REDIS_PASSWORD: "Harishharish@123!!!!"
+      REDIS_PASSWORD: "fakepassword@793"
       REDIS_HOST: localhost
       OTP_EXPIRE_SECONDS: ${{ secrets.OTP_EXPIRE_SECONDS }}
       OTP_LOCK_SECONDS: ${{ secrets.OTP_LOCK_SECONDS }}
