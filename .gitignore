@@ -1,0 +1,15 @@
+.env
+*.pyc
+__pycache__
+scalable-fastapi-backend-venv/
+.pytest_cache
+/test_images
+/static
+/outputs
+/logs
+/Group_Photo
+/captured_faces
+/.vscode
+.coverage
+buffalo_l/
+deepface_weights

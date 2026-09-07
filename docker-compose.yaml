@@ -1,0 +1,131 @@
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.api
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - ./buffalo_l:/root/.insightface/models/buffalo_l
+      - ./deepface_weights:/root/.deepface/weights
+    ports:
+      - "127.0.0.1:8000:8080"
+    command: ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8080", "--ws-ping-interval", "30", "--ws-ping-timeout", "30"]
+    depends_on:
+      db:
+        condition: service_healthy
+      # localstack:
+      #   condition: service_healthy
+      cache:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+        reservations:
+          memory: 2g
+    mem_limit: 4g
+    mem_reservation: 2g
+    networks:
+      - backend
+
+  worker:
+    build:
+      context: .
+      dockerfile: Docker/Dockerfile.worker
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - ./buffalo_l:/root/.insightface/models/buffalo_l
+      - ./deepface_weights:/root/.deepface/weights
+    depends_on:
+      cache:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+    networks:
+      - backend
+
+  db:
+    image: postgres:17-alpine
+    container_name: fastapi_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}   
+      POSTGRES_PORT: ${POSTGRES_PORT}  # Fixed here
+    ports:
+      - "${POSTGRES_PORT}:5432"  
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # localstack:
+  #   image: localstack/localstack:latest
+  #   container_name: fastapi_localstack
+  #   ports: 
+  #     - "4566:4566"                          # Fixed here
+  #   environment:
+  #     SERVICES: s3
+  #     AWS_DEFAULT_REGION: ${AWS_REGION}     # Production standard dynamic injection
+  #     AWS_ENDPOINT_URL: http://localstack:4566
+  #   volumes:
+  #     - localstack_data:/var/lib/localstack/data
+  #   deploy:                                  # Added resource fencing
+  #     resources:
+  #       limits:
+  #         cpus: '1.0'
+  #         memory: 1G
+  #   networks:
+  #     - backend
+  #   healthcheck:                             # Added health sequencing
+  #     test: ["CMD", "curl", "-f", "http://localhost:4566/_localstack/health"]
+  #     interval: 5s
+  #     timeout: 5s
+  #     retries: 5
+
+  cache:
+    image: redis:8.10.1-alpine
+    container_name: fastapi_redis
+    ports:
+    - "${REDIS_PORT}:6379"
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/var/lib/redis/data
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: "1G"
+    networks:
+      - backend
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a $${REDIS_PASSWORD} ping | grep PONG"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+
+volumes:
+  postgres_data:
+  # localstack_data:
+  redis_data:
+
+networks:
+  backend:

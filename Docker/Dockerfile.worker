@@ -1,0 +1,3 @@
+FROM my-base-image:latest
+
+CMD ["celery", "-A", "src.services.v1.email_service:celery_app", "worker", "--loglevel=info"]

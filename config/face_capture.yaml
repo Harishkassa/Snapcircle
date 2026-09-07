@@ -1,0 +1,10 @@
+
+face_params:
+    MIN_FACE_RATIO : 0.20          # face height must be >= 20% of frame height
+    MIN_CONFIDENCE : 0.90          # RetinaFace detection confidence threshold
+    MIN_SHARPNESS : 15.0           # Laplacian variance threshold (tune per camera)
+    LOCK_FRAMES_REQUIRED : 3       # consecutive good frames required before locking
+    MAX_DETECTION_DIM : 640        # resize longest side to this before detection (speed)
+    SAVE_DIR : "captured_faces"
+    FACE_TTL_SECONDS : 300
+    MATCH_THRESHOLD : 0.55

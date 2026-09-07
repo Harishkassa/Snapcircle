@@ -1,0 +1,30 @@
+# ---------- Stage 1: Build ----------
+FROM python:3.13-slim AS builder
+
+WORKDIR /app
+
+RUN pip install poetry
+RUN poetry config virtualenvs.create false
+
+COPY pyproject.toml poetry.lock ./
+RUN --mount=type=cache,target=/root/.cache/pypoetry poetry install --no-root --only main
+
+# ---------- Stage 2: Final (runtime) ----------
+FROM python:3.13-slim AS base
+
+WORKDIR /app
+
+# System libs needed at runtime for opencv/insightface
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libgl1 \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy only installed packages from builder stage (not poetry itself, not build tools)
+COPY --from=builder /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
+COPY --from=builder /usr/local/bin /usr/local/bin
+
+# Copy app code
+COPY . .
