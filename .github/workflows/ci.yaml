@@ -47,7 +47,7 @@ jobs:
       EMAIL_HOST_USER: ${{ secrets.EMAIL_HOST_USER }}
       EMAIL_HOST_PASSWORD: ${{ secrets.EMAIL_HOST_PASSWORD }}
       REDIS_PORT: 6379
-      REDIS_PASSWORD: ""
+      REDIS_PASSWORD: "Harishharish@123!!!!"
       REDIS_HOST: localhost
       OTP_EXPIRE_SECONDS: ${{ secrets.OTP_EXPIRE_SECONDS }}
       OTP_LOCK_SECONDS: ${{ secrets.OTP_LOCK_SECONDS }}
